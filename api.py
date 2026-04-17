@@ -32,3 +32,26 @@ def get_today_matches():
         })
 
     return matches
+    def get_team_stats(team_id):
+
+    url = f"https://v3.football.api-sports.io/teams/statistics?season=2024&team={team_id}&league=39"
+
+    response = requests.get(url, headers=HEADERS)
+    data = response.json()
+
+    try:
+        stats = data["response"]
+
+        goals_for = stats["goals"]["for"]["average"]["total"]
+        goals_against = stats["goals"]["against"]["average"]["total"]
+
+        return {
+            "goals_for": goals_for if goals_for else 1.2,
+            "goals_against": goals_against if goals_against else 1.2
+        }
+
+    except:
+        return {
+            "goals_for": 1.2,
+            "goals_against": 1.2
+        }
