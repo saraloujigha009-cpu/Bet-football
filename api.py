@@ -13,21 +13,22 @@ def get_today_matches():
     url = f"https://v3.football.api-sports.io/fixtures?date={today}"
 
     response = requests.get(url, headers=HEADERS)
-
     data = response.json()
 
     matches = []
 
     for m in data["response"]:
 
-        team1 = m["teams"]["home"]["name"]
-        team2 = m["teams"]["away"]["name"]
-        league = m["league"]["name"]
-
         matches.append({
-            "team1": team1,
-            "team2": team2,
-            "league": league
+            "fixture_id": m["fixture"]["id"],
+
+            "team1": m["teams"]["home"]["name"],
+            "team2": m["teams"]["away"]["name"],
+
+            "team1_id": m["teams"]["home"]["id"],
+            "team2_id": m["teams"]["away"]["id"],
+
+            "league": m["league"]["name"]
         })
 
     return matches
