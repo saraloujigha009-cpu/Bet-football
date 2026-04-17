@@ -1,58 +1,28 @@
-import requests
-from datetime import datetime
-from config import API_KEY
+def get_match_odds(fixture_id):
 
-HEADERS = {
-    "x-apisports-key": API_KEY
-}
-
-
-def get_today_matches():
-
-    today = datetime.today().strftime("%Y-%m-%d")
-
-    url = f"https://v3.football.api-sports.io/fixtures?date={today}"
+    url = f"https://v3.football.api-sports.io/odds?fixture={fixture_id}"
 
     try:
         response = requests.get(url, headers=HEADERS, timeout=10)
         data = response.json()
 
-        matches = []
+        odds_data = data.get("response", [])
 
-        for m in data.get("response", []):
+        if not odds_data:
+            return None
 
-            matches.append({
-                "fixture_id": m["fixture"]["id"],
-                "team1": m["teams"]["home"]["name"],
-                "team2": m["teams"]["away"]["name"],
-                "team1_id": m["teams"]["home"]["id"],
-                "team2_id": m["teams"]["away"]["id"],
-                "league": m["league"]["name"]
-            })
+        # ناخدو 1X2 market
+        bookmakers = odds_data[0]["bookmakers"][0]["bets"][0]["values"]
 
-        return matches
-
-    except:
-        return []
-
-
-def get_team_stats(team_id):
-
-    url = f"https://v3.football.api-sports.io/teams/statistics?season=2024&team={team_id}&league=39"
-
-    try:
-        response = requests.get(url, headers=HEADERS, timeout=10)
-        data = response.json()
-
-        stats = data.get("response", {})
+        home_odds = float(bookmakers[0]["odd"])
+        draw_odds = float(bookmakers[1]["odd"])
+        away_odds = float(bookmakers[2]["odd"])
 
         return {
-            "goals_for": stats.get("goals", {}).get("for", {}).get("average", {}).get("total", 1.2) or 1.2,
-            "goals_against": stats.get("goals", {}).get("against", {}).get("average", {}).get("total", 1.2) or 1.2
+            "home": home_odds,
+            "draw": draw_odds,
+            "away": away_odds
         }
 
     except:
-        return {
-            "goals_for": 1.2,
-            "goals_against": 1.2
-        }
+        return None
