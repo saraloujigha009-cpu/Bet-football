@@ -1,5 +1,6 @@
 from api import get_today_matches, get_team_stats, get_match_odds
 from predictor import analyze_match
+from data import save_prediction, get_history
 from telegram import Update
 from telegram.ext import ContextTypes
 
@@ -19,13 +20,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
             odds = get_match_odds(m["fixture_id"])
 
-            result = analyze_match(
-                m["team1"],
-                m["team2"],
-                stats1,
-                stats2,
-                odds
-            )
+            result = analyze_match(m["team1"], m["team2"], stats1, stats2, odds)
 
             pick = result["Pick"]
 
@@ -42,6 +37,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
                     "value": result["Value"]
                 })
 
+                save_prediction(result)
                 used.add(pick)
 
         except:
@@ -50,10 +46,10 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     bets = sorted(bets, key=lambda x: x["value"], reverse=True)[:3]
 
     if not bets:
-        await update.message.reply_text("⚠️ No positive value bets today")
+        await update.message.reply_text("⚠️ No value bets today")
         return
 
-    msg = "🔥 ELITE VALUE BETTING SYSTEM\n\n"
+    msg = "🔥 ELITE VALUE BETTING AI\n\n"
 
     for i, b in enumerate(bets, 1):
 
