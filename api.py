@@ -1,28 +1,33 @@
 import requests
 from datetime import datetime
+from config import API_KEY
 
-API_KEY = "bc2df9e4ea817767c164df0b13d1f24b"
+HEADERS = {
+    "x-apisports-key": API_KEY
+}
 
 def get_today_matches():
 
-    today = datetime.today().strftime('%Y-%m-%d')
+    today = datetime.today().strftime("%Y-%m-%d")
 
     url = f"https://v3.football.api-sports.io/fixtures?date={today}"
 
-    headers = {
-        "x-apisports-key": API_KEY
-    }
+    response = requests.get(url, headers=HEADERS)
 
-    r = requests.get(url, headers=headers)
-    data = r.json()
+    data = response.json()
 
     matches = []
 
     for m in data["response"]:
 
+        team1 = m["teams"]["home"]["name"]
+        team2 = m["teams"]["away"]["name"]
+        league = m["league"]["name"]
+
         matches.append({
-            "team1": m["teams"]["home"]["name"],
-            "team2": m["teams"]["away"]["name"]
+            "team1": team1,
+            "team2": team2,
+            "league": league
         })
 
     return matches
