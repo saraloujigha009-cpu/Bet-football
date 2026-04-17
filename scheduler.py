@@ -16,7 +16,7 @@ def send_daily_bets():
             m["team2_form"][0]
         )
 
-        if result["Confidence%"] >= 65:
+        if result["Confidence%"] >= 80:
             bets.append({
                 "match": f"{m['team1']} vs {m['team2']}",
                 "result": result
