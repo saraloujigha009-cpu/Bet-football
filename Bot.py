@@ -6,23 +6,39 @@ from telegram.ext import ContextTypes
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
-    matches = get_today_matches()
+    try:
+        matches = get_today_matches()
+    except:
+        await update.message.reply_text("❌ API error: cannot fetch matches")
+        return
 
     if not matches:
-        await update.message.reply_text("❌ No matches found today")
+        await update.message.reply_text("⚠️ No matches available today")
         return
 
     bets = []
 
-    for m in matches[:10]:  # باش ما يطيحش API
+    for m in matches:
 
         try:
             stats1 = get_team_stats(m["team1_id"])
             stats2 = get_team_stats(m["team2_id"])
 
-            result = analyze_match(m["team1"], m["team2"], stats1, stats2)
+            # 🛡️ حماية من null / None
+            if not stats1 or not stats2:
+                continue
 
-            if result["Confidence"] >= 80:
+            if "goals_for" not in stats1 or "goals_for" not in stats2:
+                continue
+
+            result = analyze_match(
+                m["team1"],
+                m["team2"],
+                stats1,
+                stats2
+            )
+
+            if result and result.get("Confidence", 0) >= 82:
 
                 bets.append({
                     "team1": m["team1"],
@@ -33,16 +49,17 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 })
 
         except Exception as e:
-            print("Error:", e)
+            print("Match error:", e)
             continue
+
+    # 🛡️ إذا ماكاين حتى bet صالح
+    if len(bets) == 0:
+        await update.message.reply_text("⚠️ No strong bets found (low confidence data)")
+        return
 
     bets = sorted(bets, key=lambda x: x["confidence"], reverse=True)[:3]
 
-    if not bets:
-        await update.message.reply_text("⚠️ No strong bets today")
-        return
-
-    msg = "🔥 TODAY TOP BETS\n\n"
+    msg = "🔥 TODAY TOP SAFE BETS\n\n"
 
     for i, b in enumerate(bets, 1):
 
