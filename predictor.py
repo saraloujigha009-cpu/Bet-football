@@ -1,38 +1,53 @@
 def analyze_match(team1, team2, stats1, stats2):
 
-    # 🟢 القوة الهجومية والدفاعية
-    attack1 = float(stats1["goals_for"])
-    defense1 = float(stats1["goals_against"])
+    try:
+        attack1 = float(stats1.get("goals_for", 1.2))
+        defense1 = float(stats1.get("goals_against", 1.2))
 
-    attack2 = float(stats2["goals_for"])
-    defense2 = float(stats2["goals_against"])
+        attack2 = float(stats2.get("goals_for", 1.2))
+        defense2 = float(stats2.get("goals_against", 1.2))
 
-    # 🧠 توقع الأهداف (simple xG model)
-    xg1 = (attack1 + defense2) / 2
-    xg2 = (attack2 + defense1) / 2
+        # 🧠 expected goals model
+        xg1 = (attack1 + defense2) / 2
+        xg2 = (attack2 + defense1) / 2
 
-    total_goals = xg1 + xg2
+        total = xg1 + xg2
 
-    # 🟢 اختيار التوقع
-    if total_goals >= 3:
-        pick = "Over 2.5"
-    elif xg1 > xg2 + 0.3:
-        pick = f"{team1} Win"
-    elif xg2 > xg1 + 0.3:
-        pick = f"{team2} Win"
-    else:
-        pick = "BTTS Yes"
+        # 🟢 probability estimation
+        prob_team1 = xg1 / (xg1 + xg2)
+        prob_team2 = xg2 / (xg1 + xg2)
 
-    # 🟢 confidence منطقي (ماشي random)
-    confidence = 70 + abs(xg1 - xg2) * 15
+        # 🟢 decision logic (value based)
+        if total >= 3.0:
+            pick = "Over 2.5"
+            confidence = total * 25
 
-    if confidence > 92:
-        confidence = 92
+        elif prob_team1 > 0.60:
+            pick = f"{team1} Win"
+            confidence = prob_team1 * 100
 
-    score = f"{round(xg1)}-{round(xg2)}"
+        elif prob_team2 > 0.60:
+            pick = f"{team2} Win"
+            confidence = prob_team2 * 100
 
-    return {
-        "Pick": pick,
-        "Confidence": round(confidence, 1),
-        "Score": score
-    }
+        else:
+            pick = "BTTS Yes"
+            confidence = 70
+
+        if confidence > 92:
+            confidence = 92
+
+        score = f"{round(xg1)}-{round(xg2)}"
+
+        return {
+            "Pick": pick,
+            "Confidence": round(confidence, 1),
+            "Score": score
+        }
+
+    except:
+        return {
+            "Pick": "No Bet",
+            "Confidence": 0,
+            "Score": "0-0"
+        }
