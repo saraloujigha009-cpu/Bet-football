@@ -9,7 +9,11 @@ def predict_match(team1_goals, team2_goals):
     team2_win = 100 - team1_win
 
     # Confidence = strength of best prediction
-    confidence = max(over_25, btts, team1_win, team2_win)
+    confidence = (
+    over_25 * 0.4 +
+    btts * 0.3 +
+    max(team1_win, team2_win) * 0.3
+    )
 
     if over_25 == confidence:
         pick = "Over 2.5"
