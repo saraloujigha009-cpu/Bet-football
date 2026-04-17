@@ -1,40 +1,18 @@
-from api import get_matches
-from predictor import predict_match
-from bot import send_message
+import threading
+import time
 
-matches = get_matches()
+from bot import app  # telegram bot
+from scheduler import send_daily_bet
 
-best_bet = None
+# 🟢 تشغيل auto mode كل 24h
+def auto_loop():
+    while True:
+        send_daily_bet()
+        time.sleep(86400)  # 24h
 
-for match in matches:
+# تشغيل thread ديال auto
+threading.Thread(target=auto_loop).start()
 
-    result = predict_match(
-        match["team1_form"][0],
-        match["team2_form"][0]
-    )
-
-    if result["Confidence%"] >= 70:
-        best_bet = (match, result)
-        break
-
-if best_bet:
-
-    match, result = best_bet
-
-    message = f"""
-🔥 BEST BET TODAY 🔥
-
-{match['team1']} vs {match['team2']}
-
-Pick: {result['Pick']}
-Confidence: {result['Confidence%']}%
-
-Over2.5: {result['Over2.5%']}%
-BTTS: {result['BTTS%']}%
-"""
-
-    send_message(message)
-
-    print("Message sent!")
-else:
-    print("No strong bets today")
+# تشغيل bot (chat mode)
+print("🔥 Bot running 24/7...")
+app.run_polling()
