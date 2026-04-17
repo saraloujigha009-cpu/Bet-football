@@ -6,6 +6,7 @@ HEADERS = {
     "x-apisports-key": API_KEY
 }
 
+
 def get_today_matches():
 
     today = datetime.today().strftime("%Y-%m-%d")
@@ -32,7 +33,9 @@ def get_today_matches():
         })
 
     return matches
-    def get_team_stats(team_id):
+
+
+def get_team_stats(team_id):
 
     url = f"https://v3.football.api-sports.io/teams/statistics?season=2024&team={team_id}&league=39"
 
