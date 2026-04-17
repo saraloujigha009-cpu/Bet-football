@@ -1,25 +1,25 @@
 import random
 
-def analyze_match(team1, team2, form1, form2):
+def analyze_match(team1, team2):
 
-    score1 = form1 + random.uniform(0.5, 1.5)
-    score2 = form2 + random.uniform(0.5, 1.5)
+    attack1 = random.uniform(1.2, 2.4)
+    attack2 = random.uniform(1.0, 2.2)
 
-    total = score1 + score2
+    total = attack1 + attack2
 
-    if total > 3:
+    if total >= 3:
         pick = "Over 2.5"
-    elif score1 > score2:
+    elif attack1 > attack2:
         pick = f"{team1} Win"
     else:
         pick = f"{team2} Win"
 
-    confidence = round(random.uniform(85, 92), 1)
+    confidence = round(random.uniform(86, 92), 1)
 
-    score_prediction = f"{round(score1)}-{round(score2)}"
+    score_prediction = f"{round(attack1)}-{round(attack2)}"
 
     return {
         "Pick": pick,
-        "Confidence%": confidence,
+        "Confidence": confidence,
         "Score": score_prediction
     }
