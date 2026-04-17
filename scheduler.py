@@ -3,7 +3,7 @@ from predictor import analyze_match
 from bot import create_app
 from telegram import Bot
 
-TOKEN = "YOUR_TOKEN"
+TOKEN = "8754438460:AAEliYNcIBCu9eb26oy8b7kXPoEqiHZhuVg"
 bot = Bot(token=TOKEN)
 
 def send_daily_bets():
