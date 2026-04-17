@@ -7,7 +7,7 @@ from scheduler import send_daily_bet
 # 🟢 تشغيل auto mode كل 24h
 def auto_loop():
     while True:
-        send_daily_bet()
+        send_daily_bets()
         time.sleep(86400)  # 24h
 
 # تشغيل thread ديال auto
