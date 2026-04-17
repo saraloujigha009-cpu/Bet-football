@@ -3,3 +3,4 @@ requests
 numpy
 scikit-learn
 requests
+python-telegram-bot
