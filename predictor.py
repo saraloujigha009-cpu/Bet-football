@@ -1,16 +1,29 @@
-def predict_match(team1_goals_avg, team2_goals_avg):
-    total_goals = team1_goals_avg + team2_goals_avg
+def predict_match(team1_goals, team2_goals):
 
-    # Over 2.5 logic
-    if total_goals >= 2.8:
-        return "Over 2.5"
+    total = team1_goals + team2_goals
 
-    # BTTS logic
-    if team1_goals_avg > 0.8 and team2_goals_avg > 0.8:
-        return "BTTS Yes"
+    # Over 2.5 probability
+    over_25 = min(95, max(5, total * 35))
 
-    # fallback winner
-    if team1_goals_avg > team2_goals_avg:
-        return "Team 1 Win"
+    # BTTS probability
+    btts = min(95, max(5, (team1_goals * team2_goals) * 40))
+
+    # Win probability (simple model)
+    team1_win = 50 + (team1_goals - team2_goals) * 20
+    team2_win = 100 - team1_win
+
+    # pick best bet
+    if over_25 > 65:
+        pick = "Over 2.5"
+    elif btts > 60:
+        pick = "BTTS Yes"
     else:
-        return "Team 2 Win"
+        pick = "Winner"
+
+    return {
+        "Over2.5%": round(over_25, 1),
+        "BTTS%": round(btts, 1),
+        "Team1Win%": round(team1_win, 1),
+        "Team2Win%": round(team2_win, 1),
+        "Pick": pick
+    }
