@@ -6,19 +6,19 @@ headers = {
     "x-apisports-key": API_KEY
 }
 
-def get_team_form(team_id):
-    url = f"https://v3.football.api-sports.io/fixtures?team={team_id}&last=5"
+def get_matches():
+    url = "https://v3.football.api-sports.io/fixtures?date=2026-04-17"
     response = requests.get(url, headers=headers)
     data = response.json()
 
-    goals_scored = 0
-    goals_conceded = 0
+    matches = []
 
-    for match in data["response"]:
-        goals_scored += match["goals"]["home"] if match["teams"]["home"]["id"] == team_id else match["goals"]["away"]
-        goals_conceded += match["goals"]["away"] if match["teams"]["home"]["id"] == team_id else match["goals"]["home"]
+    for item in data["response"]:
+        matches.append({
+            "team1": item["teams"]["home"]["name"],
+            "team2": item["teams"]["away"]["name"],
+            "team1_id": item["teams"]["home"]["id"],
+            "team2_id": item["teams"]["away"]["id"]
+        })
 
-    avg_scored = goals_scored / 5
-    avg_conceded = goals_conceded / 5
-
-    return avg_scored, avg_conceded
+    return matches
