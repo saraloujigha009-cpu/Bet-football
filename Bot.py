@@ -12,24 +12,35 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     for m in matches[:15]:
 
-        stats1 = get_team_stats(m["team1_id"])
-        stats2 = get_team_stats(m["team2_id"])
+        try:
+            stats1 = get_team_stats(m["team1_id"])
+            stats2 = get_team_stats(m["team2_id"])
 
-        result = analyze_match(m["team1"], m["team2"], stats1, stats2)
+            result = analyze_match(
+                m["team1"],
+                m["team2"],
+                stats1,
+                stats2
+            )
 
-        if result["Confidence"] >= 75:
+            # 🟢 خففنا الشرط باش ما يبقاش فارغ
+            if result and result.get("Confidence", 0) >= 60:
 
-            bets.append({
-                "team1": m["team1"],
-                "team2": m["team2"],
-                "pick": result["Pick"],
-                "confidence": result["Confidence"],
-                "score": result["Score"]
-            })
+                bets.append({
+                    "team1": m["team1"],
+                    "team2": m["team2"],
+                    "pick": result["Pick"],
+                    "confidence": result["Confidence"],
+                    "score": result["Score"]
+                })
 
+        except:
+            continue
+
+    # 🟢 ديما نرجعو أقوى 3
     bets = sorted(bets, key=lambda x: x["confidence"], reverse=True)[:3]
 
-    msg = "🔥 PRO VALUE BETS (REAL DATA)\n\n"
+    msg = "🔥 TODAY TOP BETS (REAL DATA)\n\n"
 
     for i, b in enumerate(bets, 1):
 
