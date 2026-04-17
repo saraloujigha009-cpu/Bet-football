@@ -1,12 +1,11 @@
-import time
 from api import get_matches
 from predictor import analyze_match
 from bot import send_message
 
-def send_daily_bet():
+def send_daily_bets():
 
     matches = get_matches()
-    best = None
+    bets = []
 
     for m in matches:
 
@@ -17,23 +16,33 @@ def send_daily_bet():
             m["team2_form"][0]
         )
 
-        if result["Confidence%"] >= 70:
-            best = (m, result)
-            break
+        if result["Confidence%"] >= 65:
+            bets.append({
+                "match": f"{m['team1']} vs {m['team2']}",
+                "result": result
+            })
 
-    if best:
-        m, r = best
+    # ترتيب من الأقوى
+    bets.sort(key=lambda x: x["result"]["Confidence%"], reverse=True)
 
-        msg = f"""
-🔥 DAILY BEST BET
+    # نخليو غير top 3
+    top_bets = bets[:3]
 
-{m['team1']} vs {m['team2']}
+    if not top_bets:
+        send_message("❌ No strong bets today")
+        return
 
+    msg = "🔥 TODAY BEST 3 BETS 🔥\n\n"
+
+    for i, b in enumerate(top_bets, start=1):
+        r = b["result"]
+
+        msg += f"""
+{i}. {b['match']}
 Pick: {r['Pick']}
 Confidence: {r['Confidence%']}%
 Score: {r['Score']}
+
 """
 
-        send_message(msg)
-
-        print("Daily bet sent ✔️")
+    send_message(msg)
