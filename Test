@@ -1,0 +1,3 @@
+from bot import send_message
+
+send_message("🔥 BetBot is working successfully!")
