@@ -14,6 +14,7 @@ def predict_match(team1_goals, team2_goals):
     btts * 0.3 +
     max(team1_win, team2_win) * 0.3
     )
+    
     if result["Confidence%"] >= 85 and result["Score"] != "1-1":
     if over_25 == confidence:
         pick = "Over 2.5"
