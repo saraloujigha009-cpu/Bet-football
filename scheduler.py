@@ -1,6 +1,10 @@
 from api import get_matches
 from predictor import analyze_match
-from bot import send_message
+from bot import create_app
+from telegram import Bot
+
+TOKEN = "YOUR_TOKEN"
+bot = Bot(token=TOKEN)
 
 def send_daily_bets():
 
@@ -17,32 +21,23 @@ def send_daily_bets():
         )
 
         if result["Confidence%"] >= 80:
-            bets.append({
-                "match": f"{m['team1']} vs {m['team2']}",
-                "result": result
-            })
+            bets.append((m, result))
 
-    # ترتيب من الأقوى
-    bets.sort(key=lambda x: x["result"]["Confidence%"], reverse=True)
+    bets.sort(key=lambda x: x[1]["Confidence%"], reverse=True)
+    top3 = bets[:3]
 
-    # نخليو غير top 3
-    top_bets = bets[:3]
-
-    if not top_bets:
-        send_message("❌ No strong bets today")
+    if not top3:
+        bot.send_message(chat_id=8797710776, text="❌ No strong bets today")
         return
 
-    msg = "🔥 TODAY BEST 3 BETS 🔥\n\n"
+    msg = "🔥 TODAY BEST 3 BETS\n\n"
 
-    for i, b in enumerate(top_bets, start=1):
-        r = b["result"]
-
+    for i, (m, r) in enumerate(top3, 1):
         msg += f"""
-{i}. {b['match']}
+{i}. {m['team1']} vs {m['team2']}
 Pick: {r['Pick']}
 Confidence: {r['Confidence%']}%
 Score: {r['Score']}
-
 """
 
-    send_message(msg)
+    bot.send_message(chat_id=8797710776, text=msg)
