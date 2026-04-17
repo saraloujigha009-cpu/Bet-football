@@ -1,7 +1,10 @@
-print("BetBot is running...")
-create main.py initial bot file
 from predictor import predict_match
+from data import matches
 
-result = predict_match(1.5, 1.2)
+for match in matches:
+    result = predict_match(
+        match["team1_avg_goals"],
+        match["team2_avg_goals"]
+    )
 
-print("🎯 BetBot Prediction:", result)
+    print(f"{match['team1']} vs {match['team2']} ➜ {result}")
