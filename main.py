@@ -2,6 +2,6 @@ from bot import create_app
 
 app = create_app()
 
-print("🔥 Bot running...")
+print("🔥 BETBOT PRO RUNNING...")
 
 app.run_polling()
