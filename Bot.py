@@ -4,6 +4,19 @@ from telegram import Update
 from telegram.ext import ContextTypes
 
 
+def smart_pick(xg1, xg2, total):
+
+    # 🧠 logic ذكي حسب الأرقام
+    if total >= 3.2:
+        return "Over 2.5"
+    elif abs(xg1 - xg2) < 0.3:
+        return "BTTS Yes"
+    elif xg1 > xg2:
+        return "Home Win"
+    else:
+        return "Away Win"
+
+
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     matches = get_today_matches()
@@ -16,36 +29,44 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
             stats1 = get_team_stats(m["team1_id"])
             stats2 = get_team_stats(m["team2_id"])
 
-            result = analyze_match(m["team1"], m["team2"], stats1, stats2)
+            attack1 = float(stats1.get("goals_for", 1.2))
+            defense1 = float(stats1.get("goals_against", 1.2))
 
-            if result.get("Confidence", 0) >= 60:
+            attack2 = float(stats2.get("goals_for", 1.2))
+            defense2 = float(stats2.get("goals_against", 1.2))
 
-                bets.append({
-                    "team1": m["team1"],
-                    "team2": m["team2"],
-                    "pick": result["Pick"],
-                    "confidence": result["Confidence"],
-                    "score": result["Score"]
-                })
+            xg1 = (attack1 + defense2) / 2
+            xg2 = (attack2 + defense1) / 2
+
+            total = xg1 + xg2
+
+            pick = smart_pick(xg1, xg2, total)
+
+            confidence = 70 + abs(xg1 - xg2) * 12
+
+            if confidence > 92:
+                confidence = 92
+
+            bets.append({
+                "team1": m["team1"],
+                "team2": m["team2"],
+                "pick": pick,
+                "confidence": round(confidence, 1)
+            })
 
         except:
             continue
 
     bets = sorted(bets, key=lambda x: x["confidence"], reverse=True)[:3]
 
-    if not bets:
-        await update.message.reply_text("⚠️ No bets available today")
-        return
-
-    msg = "🔥 TODAY TOP BETS (PRO MODE)\n\n"
+    msg = "🔥 SMART VALUE BETS\n\n"
 
     for i, b in enumerate(bets, 1):
 
         msg += f"""
 {i}) {b['team1']} vs {b['team2']}
-Pick: {b['pick']}
+Prediction: {b['pick']}
 Confidence: {b['confidence']}%
-Score: {b['score']}
 """
 
     await update.message.reply_text(msg)
