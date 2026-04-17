@@ -1,5 +1,8 @@
 from predictor import predict_match
-from api import matches, get_team_form
+from api import get_matches
+from api import get_team_form
+
+matches = get_matches()
 
 for match in matches:
 
@@ -11,4 +14,4 @@ for match in matches:
         team2_form[0]
     )
 
-    print(match["team1"], "vs", match["team2"], "=>", result)
+    print(f"{match['team1']} vs {match['team2']} => {result}")
