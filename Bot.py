@@ -16,15 +16,9 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
             stats1 = get_team_stats(m["team1_id"])
             stats2 = get_team_stats(m["team2_id"])
 
-            result = analyze_match(
-                m["team1"],
-                m["team2"],
-                stats1,
-                stats2
-            )
+            result = analyze_match(m["team1"], m["team2"], stats1, stats2)
 
-            # 🟢 خففنا الشرط باش ما يبقاش فارغ
-            if result and result.get("Confidence", 0) >= 60:
+            if result.get("Confidence", 0) >= 60:
 
                 bets.append({
                     "team1": m["team1"],
@@ -37,10 +31,13 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         except:
             continue
 
-    # 🟢 ديما نرجعو أقوى 3
     bets = sorted(bets, key=lambda x: x["confidence"], reverse=True)[:3]
 
-    msg = "🔥 TODAY TOP BETS (REAL DATA)\n\n"
+    if not bets:
+        await update.message.reply_text("⚠️ No bets available today")
+        return
+
+    msg = "🔥 TODAY TOP BETS (PRO MODE)\n\n"
 
     for i, b in enumerate(bets, 1):
 
