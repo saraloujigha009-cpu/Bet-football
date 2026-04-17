@@ -1,9 +1,10 @@
-from predictor import predict_match
 from api import get_matches
+from predictor import predict_match
+from bot import send_message
 
 matches = get_matches()
 
-best_bets = []
+best_bet = None
 
 for match in matches:
 
@@ -13,20 +14,27 @@ for match in matches:
     )
 
     if result["Confidence%"] >= 70:
-        best_bets.append({
-            "match": f"{match['team1']} vs {match['team2']}",
-            "data": result
-        })
+        best_bet = (match, result)
+        break
 
-# ترتيب من الأقوى للأضعف
-best_bets.sort(key=lambda x: x["data"]["Confidence%"], reverse=True)
+if best_bet:
 
-# نخليو غير top 1
-if best_bets:
-    top = best_bets[0]
+    match, result = best_bet
 
-    print("\n🔥 BEST BET TODAY 🔥")
-    print(top["match"])
-    print(top["data"])
+    message = f"""
+🔥 BEST BET TODAY 🔥
+
+{match['team1']} vs {match['team2']}
+
+Pick: {result['Pick']}
+Confidence: {result['Confidence%']}%
+
+Over2.5: {result['Over2.5%']}%
+BTTS: {result['BTTS%']}%
+"""
+
+    send_message(message)
+
+    print("Message sent!")
 else:
-    print("❌ No strong bets today")
+    print("No strong bets today")
