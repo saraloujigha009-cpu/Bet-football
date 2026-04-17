@@ -1,19 +1,12 @@
-from bot import create_app
-from scheduler import send_daily_bets
-import threading
+import schedule
 import time
+from scheduler import send_daily_bets
 
-# 🟢 Auto mode (مرة فاليوم فقط)
-def auto_loop():
-    while True:
-        send_daily_bets()
-        time.sleep(86400)
+# كل نهار فـ 09:00 صباحا
+schedule.every().day.at("09:00").do(send_daily_bets)
 
-# start auto thread
-threading.Thread(target=auto_loop, daemon=True).start()
+print("BetBot running...")
 
-# start bot
-app = create_app()
-
-print("🔥 BetBot running clean version...")
-app.run_polling()
+while True:
+    schedule.run_pending()
+    time.sleep(60)
