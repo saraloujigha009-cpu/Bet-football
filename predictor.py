@@ -1,25 +1,38 @@
-import random
+def analyze_match(team1, team2, stats1, stats2):
 
-def analyze_match(team1, team2):
+    # 🟢 القوة الهجومية والدفاعية
+    attack1 = float(stats1["goals_for"])
+    defense1 = float(stats1["goals_against"])
 
-    attack1 = random.uniform(1.2, 2.4)
-    attack2 = random.uniform(1.0, 2.2)
+    attack2 = float(stats2["goals_for"])
+    defense2 = float(stats2["goals_against"])
 
-    total = attack1 + attack2
+    # 🧠 توقع الأهداف (simple xG model)
+    xg1 = (attack1 + defense2) / 2
+    xg2 = (attack2 + defense1) / 2
 
-    if total >= 3:
+    total_goals = xg1 + xg2
+
+    # 🟢 اختيار التوقع
+    if total_goals >= 3:
         pick = "Over 2.5"
-    elif attack1 > attack2:
+    elif xg1 > xg2 + 0.3:
         pick = f"{team1} Win"
-    else:
+    elif xg2 > xg1 + 0.3:
         pick = f"{team2} Win"
+    else:
+        pick = "BTTS Yes"
 
-    confidence = round(random.uniform(86, 92), 1)
+    # 🟢 confidence منطقي (ماشي random)
+    confidence = 70 + abs(xg1 - xg2) * 15
 
-    score_prediction = f"{round(attack1)}-{round(attack2)}"
+    if confidence > 92:
+        confidence = 92
+
+    score = f"{round(xg1)}-{round(xg2)}"
 
     return {
         "Pick": pick,
-        "Confidence": confidence,
-        "Score": score_prediction
+        "Confidence": round(confidence, 1),
+        "Score": score
     }
