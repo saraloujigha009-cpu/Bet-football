@@ -3,21 +3,19 @@ def analyze_match(team1, team2, stats1, stats2, odds=None):
     try:
         a1 = float(stats1.get("goals_for", 1.2))
         d1 = float(stats1.get("goals_against", 1.2))
-
         a2 = float(stats2.get("goals_for", 1.2))
         d2 = float(stats2.get("goals_against", 1.2))
 
-        # 🧠 xG model
         xg1 = (a1 + d2) / 2
         xg2 = (a2 + d1) / 2
 
         total = xg1 + xg2
+        diff = abs(xg1 - xg2)
 
-        # 🧠 probability
         p1 = xg1 / (xg1 + xg2)
         p2 = xg2 / (xg1 + xg2)
 
-        # 🧠 decide pick
+        # decision
         if total >= 3.4:
             pick = "Over 2.5"
             prob = total / 5
@@ -34,7 +32,7 @@ def analyze_match(team1, team2, stats1, stats2, odds=None):
             pick = "BTTS Yes"
             prob = 0.55
 
-        # 🧠 VALUE CALCULATION (ELITE PART)
+        # VALUE
         if odds:
             if "Home" in pick:
                 implied = 1 / odds["home"]
@@ -60,9 +58,4 @@ def analyze_match(team1, team2, stats1, stats2, odds=None):
         }
 
     except:
-        return {
-            "Pick": "No Bet",
-            "Confidence": 0,
-            "Value": 0,
-            "Score": "0-0"
-        }
+        return {"Pick": "No Bet", "Confidence": 0, "Value": 0, "Score": "0-0"}
