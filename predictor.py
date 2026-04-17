@@ -7,11 +7,13 @@ def analyze_match(team1, team2, stats1, stats2):
         attack2 = float(stats2.get("goals_for", 1.2))
         defense2 = float(stats2.get("goals_against", 1.2))
 
+        # xG model
         xg1 = (attack1 + defense2) / 2
         xg2 = (attack2 + defense1) / 2
 
         total = xg1 + xg2
 
+        # decision
         if total >= 3:
             pick = "Over 2.5"
         elif xg1 > xg2:
@@ -26,12 +28,10 @@ def analyze_match(team1, team2, stats1, stats2):
         if confidence > 92:
             confidence = 92
 
-        score = f"{round(xg1)}-{round(xg2)}"
-
         return {
             "Pick": pick,
             "Confidence": round(confidence, 1),
-            "Score": score
+            "Score": f"{round(xg1)}-{round(xg2)}"
         }
 
     except:
